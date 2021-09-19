@@ -1,0 +1,122 @@
+
+CREATE TABLE USER
+ -> (id CHAR(8) NOT NULL, name VARCHAR(20) NOT NULL, phonenumber 
+VARCHAR(20), PRIMARY KEY(id));
+INSERT INTO USER VALUES
+-> ('rrkkee', '가나다', '010-1111-2222'), -> ('aaqqtt', '마바사', '010-33334444');
+
+CREATE TABLE STAFF
+ -> (id CHAR(8) NOT NULL, name VARCHAR(20) NOT NULL, phonenumber 
+VARCHAR(20), PRIMARY KEY(id));
+INSERT INTO STAFF VALUES
+-> ('ddwwcc', '아자차', '010-5555-6666');
+
+CREATE TABLE MANAGER
+ -> (id CHAR(8) NOT NULL, name VARCHAR(20) NOT NULL, phonenumber 
+VARCHAR(20), PRIMARY KEY(id));
+INSERT INTO MANAGER VALUES
+-> ('zzxxvv', '카타파', '010-7777-8888');
+
+CREATE TABLE PLAY
+ -> (TITLE VARCHAR(20) NOT NULL, TIME INT, PRIMARY KEY(TITLE));
+INSERT INTO PLAY VALUES
+-> ('나쁜자석', 120);
+
+CREATE TABLE THEATER
+ -> (NAME VARCHAR(20) NOT NULL, PLACE VARCHAR(20), PRIMARY 
+KEY(NAME));
+INSERT INTO THEATER VALUES
+->('동국아트센터', '동국대학교');
+
+CREATE TABLE AGENCY
+ -> (NAME VARCHAR(20) NOT NULL, PLACE VARCHAR(20), 
+TEL=EPHONENUMBER VARCHAR(20), KEY(NAME));
+INSERT INTO AGENCY VALUES
+('JH컴퍼니', '서울 종로구', '070-0000-1111');
+
+CREATE TABLE TICKET
+(number VARCHAR(20) NOT NULL, pl_title VARCHAR(20), seat VARCHAR(20), 
+dates VARCHAR(30), time VARCHAR(30), money INT, discount VARCHAR(20), 
+KEY(number));
+Insert into TICKET
+ -> (select 'T012345678', pl.title, '1층 B열 5번', '20200103', '8:00', 35000, '일
+반 가격' from play pl where
+ -> pl.time = 120);
+Insert into TICKET
+ -> (select 'T985432789', pl.title, '1층 A열 9번', '20200103', '8:00', 35000, '일반 
+가격' from play pl where
+ -> pl.time = 120);
+
+CREATE TABLE RESERVATION
+(ag_name VARCHAR(20), th_name VARCHAR(20), PERIOD VARCHAR(20) );
+insert into reservation
+ -> (select ag.name, th.name, 90 from agency ag, theater th where
+ -> ag.place = '서울시 종로구' and th.place = '동국대학교');
+insert into reservation values
+ -> ('JH컴퍼니' , '동국아트센터' , 90);
+select * from reservation;
+
+CREATE TABLE PLAN
+(ag_name VARCHAR(20), pl_title VARCHAR(20), PERIOD VARCHAR(30), TIME 
+VARCHAR(30));
+Insert into PLAN 
+ -> (select ag.name, pl.title, '200103~200330', '5:00/8:00' from agency ag, 
+play pl where
+ -> ag.place = '서울시 종로구' and pl.time = 120);
+Insert into PLAN values
+('JH컴퍼니' , '나쁜자석 ' , '200103~200330','5:00/8:00');
+select * from plan;
+
+CREATE TABLE ASSIGN
+ -> (ag_name VARCHAR(20), ma_name VARCHAR(20), st_name VARCHAR(20));
+insert into assign
+ -> (select ag.name, ma.name, st.name from agency ag, manager ma, staff st 
+where ag.place ='서울시 종로구' and ma.id ='zzxxvv' and st.id = 'ddwwcc');
+insert into assign values
+ -> ('JH컴퍼니','카타파','아자차');
+ select * from assign;
+
+CREATE TABLE TICKETMAKE
+(ti_number VARCHAR(20) NOT NULL, ti_pl_title VARCHAR(20), ti_seat 
+VARCHAR(20), ti_dates VARCHAR(30), ti_time VARCHAR(30), ti_money INT, 
+ti_discount VARCHAR(20), ma_id VARCHAR(20), MAKEDATE VARCHAR(20));
+Insert into TICKETMAKE
+ -> (select ti.number, pl.title, ti.seat, ti.dates, ti.time, ti.money, ti.discount, 
+ma.id, '20201115' from ticket ti, play pl, manager ma where
+ -> pl.time = 120 and ti.number = 'T012345678' and ma.id = 'zzxxvv' );
+Insert into TICKETMAKE
+ -> (select ti.number, pl.title, ti.seat, ti.dates, ti.time, ti.money, ti.discount, 
+ma.id, '20201115' from ticket ti, play pl, manager ma where
+ -> pl.time = 120 and ti.number = 'T985432789' and ma.id = 'zzxxvv' );
+select * from ticketmake;
+
+DELETE FROM TICKET WHERE number = 'T985432789';
+
+CREATE TABLE PURCHASE
+ -> (ti_number VARCHAR(20), pl_title VARCHAR(20), us_id VARCHAR(20), 
+us_name VARCHAR(20), us_phonenumber VARCHAR(20), ti_time VARCHAR(20), 
+ti_seat VARCHAR(20), ti_dates VARCHAR(20), ti_money INT, ti_discount 
+VARCHAR(20), putime DATETIME, way VARCHAR(20));
+Insert into PURCHASE
+ -> (select ti.number ,pl.title, us.id, us.name, us.phonenumber, ti.time, ti.seat, 
+ti.dates, ti.money, ti.discount, NOW(),'모바일 카드 결제' from ticket ti, User us, 
+play pl where us.name = '가나다' and ti.number = 'T012345678 ');
+select * from purchase;
+
+DELETE FROM PURCHASE WHERE ti_number = 'T012345678';
+select * from purchase;
+
+create table PURCHASELIST
+ -> (ti_number VARCHAR(20), pl_title VARCHAR(20), us_id VARCHAR(20), 
+us_name VARCHAR(20), us_phonenumber VARCHAR(20), ti_time VARCHAR(20), 
+ti_seat VARCHAR(20), ti_dates VARCHAR(20), ti_money INT, cheak VARCHAR(20), 
+st_id VARCHAR(20) );
+ Insert into PURCHASELIST
+ -> (select ti.number ,pl.title, us.id, us.name, us.phonenumber, ti.time, ti.seat, 
+ti.dates, ti.money, 'N', st.id from ticket ti, User us, play pl, staff st where us.name 
+= '가나다' and ti.number = 'T012345678 'and st.name ='아자차');
+ select * from purchaselist;
+
+UPDATE purchaselist SET
+ -> cheak = 'Y' -> WHERE cheak in (SELECT cheak FROM purchaselist );
+select * from purchaselist;
